@@ -1,0 +1,32 @@
+name: game_center
+description: 'App to manage your games and performance'
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.3 <4.0.0'
+  flutter: '>=3.22.3'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.19.0
+  ubuntu_lints: ^0.4.0
+  ubuntu_localizations: ^0.4.0
+  ubuntu_logger: ^0.1.1
+  ubuntu_service: ^0.3.2
+  yaru: ^4.1.0
+  yaru_window: ^0.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mockito: ^5.4.4
+  yaru_test: ^0.1.6
+
+flutter:
+  uses-material-design: true
+  generate: true

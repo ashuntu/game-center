@@ -1,0 +1,21 @@
+target
+*.snap
+
+# Flutter/Dart/Pub related
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+pubspec.lock
+pubspec_overrides.yaml
+build/
+coverage/
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+
+# IntelliJ related
+*.iml
+*.idea

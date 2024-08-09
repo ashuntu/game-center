@@ -1,0 +1,4 @@
+name: game_center
+
+packages:
+  - packages/**

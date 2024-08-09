@@ -1,0 +1,14 @@
+{
+    "@@locale": "en",
+    "appTitle": "Game Center",
+
+    "aboutPageLabel": "About",
+
+    "launcherPageLabel": "Apps",
+
+    "steamPageLabel": "Steam",
+
+    "settingsPageLabel": "Settings",
+
+    "systemPageLabel": "System"
+}

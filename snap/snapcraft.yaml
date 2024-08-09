@@ -1,0 +1,62 @@
+name: game-center
+summary: Game Center
+description: Game Center
+base: core24
+grade: devel
+confinement: strict
+version: 0.1.0
+
+apps:
+  game-center:
+    command: bin/game_center
+    extensions:
+      - gnome
+    plugs:
+      - desktop
+      - desktop-legacy
+
+parts:
+  flutter-git:
+    plugin: nil
+    source: .
+    override-pull: |
+      # necessary when reruns using the same container
+      if [ -d "flutter" ]; then
+        rm -rf "flutter"
+      fi
+
+      craftctl default
+      FLUTTER_VERSION=$(sed -n "s/^flutter \([0-9.]\+\).*/\1/p" .tool-versions)
+      git clone -b $FLUTTER_VERSION --depth 1 https://github.com/flutter/flutter.git
+    override-build: |
+      mkdir -p $CRAFT_PART_INSTALL/usr/bin
+      mkdir -p $CRAFT_PART_INSTALL/usr/libexec
+      cp -r $CRAFT_PART_SRC/flutter $CRAFT_PART_INSTALL/usr/libexec/flutter
+      ln -s $CRAFT_PART_INSTALL/usr/libexec/flutter/bin/flutter $CRAFT_PART_INSTALL/usr/bin/flutter
+      ln -s $CRAFT_PART_INSTALL/usr/libexec/flutter/bin/dart $CRAFT_PART_INSTALL/usr/bin/dart
+      $CRAFT_PART_INSTALL/usr/bin/flutter doctor
+    build-packages:
+      - clang
+      - cmake
+      - curl
+      - git
+      - libgtk-3-dev
+      - ninja-build
+      - unzip
+      - xz-utils
+      - zip
+    override-prime: ""
+
+  game-center:
+    after: 
+      - flutter-git
+    plugin: nil
+    source: .
+    override-build: |
+      dart pub global activate melos
+      dart pub global run melos clean
+      dart pub global run melos bootstrap
+      cd packages/game_center
+      flutter build linux --release -v
+      mkdir -p $CRAFT_PART_INSTALL/bin/
+      cp -r build/linux/*/release/bundle/* $CRAFT_PART_INSTALL/bin/
