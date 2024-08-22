@@ -7,8 +7,12 @@
     "launcherPageLabel": "Apps",
 
     "steamPageLabel": "Steam",
+    "steamGlobalConfigTitle": "Steam Global Config",
+    "steamUserConfigTitle": "Steam User Configs",
 
     "settingsPageLabel": "Settings",
 
-    "systemPageLabel": "System"
+    "systemPageLabel": "System",
+
+    "loadingLabel": "Loading..."
 }

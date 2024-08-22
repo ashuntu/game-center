@@ -2,3 +2,8 @@ name: game_center
 
 packages:
   - packages/**
+
+scripts:
+  generate: >
+    melos exec -c 1 --fail-fast --depends-on=build_runner -- \
+      dart run build_runner build --delete-conflicting-outputs
