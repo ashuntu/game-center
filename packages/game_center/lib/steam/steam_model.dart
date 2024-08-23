@@ -47,6 +47,9 @@ class SteamModel extends _$SteamModel {
     installLocation = install;
 
     // global config
+    final file = File(steamGlobalConfig(installLocation));
+    globalConfig = vdfDecode(await file.readAsString());
+
     final fileSystem = FileWatcher(steamGlobalConfig(installLocation));
     fileSystem.events.listen((event) async {
       switch (event.type) {
@@ -54,13 +57,14 @@ class SteamModel extends _$SteamModel {
           await updateGlobalConfig();
       }
     });
-    final file = File(steamGlobalConfig(installLocation));
-    globalConfig = vdfDecode(await file.readAsString());
 
     // user configs
     final users = await listUserDirs();
     userConfigs = new Map();
     for (final steamID in users) {
+      final file = File(steamUserConfig(installLocation, steamID));
+      userConfigs[steamID] = vdfDecode(await file.readAsString());
+
       final fileSystem = FileWatcher(steamUserConfig(installLocation, steamID));
       fileSystem.events.listen((event) async {
         switch (event.type) {
@@ -68,8 +72,6 @@ class SteamModel extends _$SteamModel {
             await updateUserConfig(steamID);
         }
       });
-      final file = File(steamUserConfig(installLocation, steamID));
-      userConfigs[steamID] = vdfDecode(await file.readAsString());
     }
 
     return (
@@ -102,5 +104,48 @@ class SteamModel extends _$SteamModel {
       globalConfig: globalConfig,
       userConfigs: userConfigs,
     ));
+  }
+
+  /// Enable/disable Steam Play (Proton) for all titles globally. This is
+  /// disabled by default on Steam for Linux, but enabled by default on Steam
+  /// Deck.
+  Future<void> enableSteamPlay(
+      {required bool enable, String? protonVersion}) async {
+    Map<String, dynamic> config = Map.from(globalConfig);
+    if (enable) {
+      config['InstallConfigStore']['Software']['Valve']['Steam']
+          ['CompatToolMapping']['0'] = {
+        'name': protonVersion ?? 'proton_experimental',
+        'config': '',
+        'priority': '75'
+      };
+    } else {
+      config['InstallConfigStore']['Software']['Valve']['Steam']
+          ['CompatToolMapping'] = {};
+    }
+
+    final file = File(steamGlobalConfig(installLocation));
+    await file.writeAsString(vdf.encode(config));
+  }
+
+  /// Get a map of installed Steam apps for the given user.
+  Future<Map<String, dynamic>> listApps({required String steamID}) async {
+    Map<String, dynamic> config = Map.from(userConfigs[steamID]!);
+    Map<dynamic, dynamic> apps =
+        config['UserLocalConfigStore']['Software']['Valve']['Steam']['apps'];
+    return apps.cast<String, dynamic>();
+  }
+
+  /// Set the raw launch options for a specific app.
+  Future<void> setGameLaunchOptions({
+    required String steamID,
+    required String appID,
+    required String options,
+  }) async {
+    Map<String, dynamic> config = Map.from(userConfigs[steamID]!);
+    config['UserLocalConfigStore']['Software']['Valve']['Steam']['apps'][appID]
+        ['LaunchOptions'] = options;
+    final file = File(steamUserConfig(installLocation, steamID));
+    await file.writeAsString(vdf.encode(config));
   }
 }
