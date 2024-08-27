@@ -26,12 +26,21 @@ parts:
       fi
 
       craftctl default
-      FLUTTER_VERSION=$(sed -n "s/^flutter \([0-9.]\+\).*/\1/p" .tool-versions)
-      git clone -b $FLUTTER_VERSION --depth 1 https://github.com/flutter/flutter.git
+      FVM_VERSION=$(curl -s https://api.github.com/repos/leoafarias/fvm/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+      curl -L "https://github.com/leoafarias/fvm/releases/download/$FVM_VERSION/fvm-$FVM_VERSION-linux-x64.tar.gz" -o fvm.tar.gz
     override-build: |
       mkdir -p $CRAFT_PART_INSTALL/usr/bin
       mkdir -p $CRAFT_PART_INSTALL/usr/libexec
-      cp -r $CRAFT_PART_SRC/flutter $CRAFT_PART_INSTALL/usr/libexec/flutter
+      cp $CRAFT_PART_SRC/.fvmrc $CRAFT_PART_INSTALL
+
+      tar xzf fvm.tar.gz
+      rm fvm.tar.gz
+      mv fvm $CRAFT_PART_INSTALL/fvm
+      ln -s $CRAFT_PART_INSTALL/fvm/fvm $CRAFT_PART_INSTALL/usr/bin/fvm
+      cd $CRAFT_PART_INSTALL
+      $CRAFT_PART_INSTALL/usr/bin/fvm install
+
+      cp -r $CRAFT_PART_INSTALL/.fvm/flutter_sdk $CRAFT_PART_INSTALL/usr/libexec/flutter
       ln -s $CRAFT_PART_INSTALL/usr/libexec/flutter/bin/flutter $CRAFT_PART_INSTALL/usr/bin/flutter
       ln -s $CRAFT_PART_INSTALL/usr/libexec/flutter/bin/dart $CRAFT_PART_INSTALL/usr/bin/dart
       $CRAFT_PART_INSTALL/usr/bin/flutter doctor
@@ -48,7 +57,7 @@ parts:
     override-prime: ""
 
   game-center:
-    after: 
+    after:
       - flutter-git
     plugin: nil
     source: .
