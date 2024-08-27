@@ -37,9 +37,10 @@ class SteamModel extends _$SteamModel {
   Future<Config> build({String? install}) async {
     // default install location
     if (install == null) {
-      final home = Platform.environment['HOME'];
+      final home = Platform.environment['SNAP_REAL_HOME'] ??
+          Platform.environment['HOME'];
       if (home == null) {
-        throw StateError('\$HOME not found.');
+        throw StateError('Home directory not found.');
       }
       install = '$home/snap/steam/common';
     }
@@ -131,8 +132,8 @@ class SteamModel extends _$SteamModel {
   /// Get a map of installed Steam apps for the given user.
   Future<Map<String, dynamic>> listApps({required String steamID}) async {
     Map<String, dynamic> config = Map.from(userConfigs[steamID]!);
-    Map<dynamic, dynamic> apps =
-        config['UserLocalConfigStore']['Software']['Valve']['Steam']['apps'];
+    var apps = config['UserLocalConfigStore']['Software']['Valve']['Steam']
+        ['apps'] as Map;
     return apps.cast<String, dynamic>();
   }
 
