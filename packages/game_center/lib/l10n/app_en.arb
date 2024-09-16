@@ -7,8 +7,10 @@
     "launcherPageLabel": "Apps",
 
     "steamPageLabel": "Steam",
+    "steamPageTitle": "Steam Tweaks",
     "steamGlobalConfigTitle": "Steam Global Config",
     "steamUserConfigTitle": "Steam User Configs",
+    "steamEnableProton": "Enable Steam Play (Proton) for all titles",
 
     "settingsPageLabel": "Settings",
 

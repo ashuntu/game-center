@@ -21,20 +21,35 @@ class SteamPage extends ConsumerWidget {
 
     return steam.when(
       data: (data) => AppScrollView(
-        children: [
-          Text(
-            l10n.steamGlobalConfigTitle,
-            style: Theme.of(context).textTheme.headlineSmall,
+        slivers: [
+          SliverList.list(
+            children: [
+              Text(
+                l10n.steamPageTitle,
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: kPagePadding),
+            ],
           ),
-          const SizedBox(height: kPagePadding),
-          _SteamGlobalConfigText(),
-          const SizedBox(height: kPagePadding),
-          Text(
-            l10n.steamUserConfigTitle,
-            style: Theme.of(context).textTheme.headlineSmall,
+          _SteamSimpleSettings(),
+          SliverList.list(
+            children: [
+              const SizedBox(height: kPagePadding),
+              Text(
+                l10n.steamGlobalConfigTitle,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: kPagePadding),
+              _SteamGlobalConfigText(),
+              const SizedBox(height: kPagePadding),
+              Text(
+                l10n.steamUserConfigTitle,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: kPagePadding),
+              _SteamUserConfigs(),
+            ],
           ),
-          const SizedBox(height: kPagePadding),
-          _SteamUserConfigs(),
         ],
       ),
       loading: () => Center(
@@ -44,6 +59,25 @@ class SteamPage extends ConsumerWidget {
         child: Text(error.toString()),
       ),
     );
+  }
+}
+
+class _SteamSimpleSettings extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final steam = ref.watch(steamModelProvider().notifier);
+    final checked = steam.steamPlayEnabled();
+    final l10n = AppLocalizations.of(context);
+
+    return SliverList.list(children: [
+      YaruSwitchListTile(
+        title: Text(l10n.steamEnableProton),
+        value: checked,
+        onChanged: (value) async {
+          await steam.enableSteamPlay(enable: value);
+        },
+      ),
+    ]);
   }
 }
 

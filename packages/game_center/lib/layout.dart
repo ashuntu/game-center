@@ -3,21 +3,21 @@ import 'package:flutter/widgets.dart';
 const kPagePadding = 24.0;
 
 class AppScrollView extends StatelessWidget {
-  AppScrollView({required this.children});
+  AppScrollView({required this.slivers});
 
-  final List<Widget> children;
+  final List<Widget> slivers;
 
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
-      slivers: [
-        SliverPadding(
-          padding: EdgeInsets.all(kPagePadding),
-          sliver: SliverList.list(
-            children: children,
-          ),
-        )
-      ],
+      slivers: slivers
+          .map(
+            (s) => SliverPadding(
+              padding: EdgeInsets.all(kPagePadding),
+              sliver: s,
+            ),
+          )
+          .toList(),
     );
   }
 }
