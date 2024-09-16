@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:game_center/util.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:vdf/vdf.dart';
 import 'package:watcher/watcher.dart';
@@ -110,23 +111,57 @@ class SteamModel extends _$SteamModel {
   /// Enable/disable Steam Play (Proton) for all titles globally. This is
   /// disabled by default on Steam for Linux, but enabled by default on Steam
   /// Deck.
-  Future<void> enableSteamPlay(
-      {required bool enable, String? protonVersion}) async {
+  Future<void> enableSteamPlay({
+    required bool enable,
+    String? protonVersion,
+  }) async {
     Map<String, dynamic> config = Map.from(globalConfig);
     if (enable) {
-      config['InstallConfigStore']['Software']['Valve']['Steam']
-          ['CompatToolMapping']['0'] = {
-        'name': protonVersion ?? 'proton_experimental',
-        'config': '',
-        'priority': '75'
-      };
+      config = Map.castFrom(
+        safePut(
+          config,
+          [
+            'InstallConfigStore',
+            'Software',
+            'Valve',
+            'Steam',
+            'CompatToolMapping',
+            '0'
+          ],
+          {
+            'name': protonVersion ?? 'proton_experimental',
+            'config': '',
+            'priority': '75',
+          },
+        ),
+      );
     } else {
-      config['InstallConfigStore']['Software']['Valve']['Steam']
-          ['CompatToolMapping'] = {};
+      config = Map.castFrom(
+        safePut(
+          config,
+          [
+            'InstallConfigStore',
+            'Software',
+            'Valve',
+            'Steam',
+            'CompatToolMapping'
+          ],
+          {},
+        ),
+      );
     }
 
     final file = File(steamGlobalConfig(installLocation));
     await file.writeAsString(vdf.encode(config));
+  }
+
+  /// Check if Steam Play is enabled in the global config.
+  bool steamPlayEnabled() {
+    Map<String, dynamic> config = Map.from(globalConfig);
+    final key = config['InstallConfigStore']?['Software']?['Valve']?['Steam']
+        ?['CompatToolMapping'];
+    Map<String, dynamic> compat = Map.castFrom(key ?? new Map());
+    return compat.containsKey('0') && compat['0'].isNotEmpty;
   }
 
   /// Get a map of installed Steam apps for the given user.
