@@ -78,4 +78,83 @@ void main() {
       );
     }
   });
+
+  test('get launch options', () async {
+    final container = createContainer();
+    final model = container.read(steamModelProvider().notifier);
+    await container.read(steamModelProvider().future);
+
+    final users = await model.listUserDirs();
+    for (final user in users) {
+      final apps = await model.listApps(steamID: user);
+
+      await model.setGameLaunchOptions(
+        steamID: user,
+        appID: apps.keys.first,
+        options: '',
+      );
+      expect(
+        await model.getGameLaunchOptions(
+          steamID: user,
+          appID: apps.keys.first,
+        ),
+        equals(''),
+      );
+
+      await model.setGameLaunchOptions(
+        steamID: user,
+        appID: apps.keys.first,
+        options: 'foo',
+      );
+      expect(
+        await model.getGameLaunchOptions(
+          steamID: user,
+          appID: apps.keys.first,
+        ),
+        equals('foo'),
+      );
+    }
+  });
+
+  test('add/remove game launch option', () async {
+    final container = createContainer();
+    final model = container.read(steamModelProvider().notifier);
+    await container.read(steamModelProvider().future);
+
+    final users = await model.listUserDirs();
+    for (final user in users) {
+      final apps = await model.listApps(steamID: user);
+
+      await model.setGameLaunchOptions(
+        steamID: user,
+        appID: apps.keys.first,
+        options: '',
+      );
+      await model.addGameLaunchOption(
+        steamID: user,
+        appID: apps.keys.first,
+        option: 'foo',
+      );
+      expect(
+        await model.getGameLaunchOptions(
+          steamID: user,
+          appID: apps.keys.first,
+        ),
+        equals('foo %command%'),
+      );
+
+      await model.removeGameLaunchOption(
+        steamID: user,
+        appID: apps.keys.first,
+        option: 'foo',
+      );
+      expect(
+        await model.getGameLaunchOptions(
+          steamID: user,
+          appID: apps.keys.first,
+        ),
+        equals('%command%'),
+      );
+    }
+  });
 }

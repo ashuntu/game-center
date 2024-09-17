@@ -172,6 +172,16 @@ class SteamModel extends _$SteamModel {
     return apps.cast<String, dynamic>();
   }
 
+  Future<String> getGameLaunchOptions({
+    required String steamID,
+    required String appID,
+  }) async {
+    Map<String, dynamic> config = Map.from(userConfigs[steamID]!);
+    String launchOptions = config['UserLocalConfigStore']['Software']['Valve']
+        ['Steam']['apps'][appID]['LaunchOptions'];
+    return launchOptions;
+  }
+
   /// Set the raw launch options for a specific app.
   Future<void> setGameLaunchOptions({
     required String steamID,
@@ -183,5 +193,54 @@ class SteamModel extends _$SteamModel {
         ['LaunchOptions'] = options;
     final file = File(steamUserConfig(installLocation, steamID));
     await file.writeAsString(vdf.encode(config));
+    await updateUserConfig(steamID);
+  }
+
+  // Adds an option to a game's launch options. This function does nothing if
+  // the option already exists for the game.
+  Future<void> addGameLaunchOption({
+    required String steamID,
+    required String appID,
+    required String option,
+  }) async {
+    String launchOptions = await getGameLaunchOptions(
+      steamID: steamID,
+      appID: appID,
+    );
+    List<String> options =
+        launchOptions.isEmpty ? [] : launchOptions.split(RegExp(r'\s+'));
+    if (!options.contains(option)) {
+      options.add(option);
+    }
+    if (!options.contains('%command%')) {
+      options.add('%command%');
+    }
+    await setGameLaunchOptions(
+      steamID: steamID,
+      appID: appID,
+      options: options.join(' '),
+    );
+  }
+
+  // Removes an option from a game's launch options. This function does nothing
+  // if the option is not present.
+  Future<void> removeGameLaunchOption({
+    required String steamID,
+    required String appID,
+    required String option,
+  }) async {
+    String launchOptions = await getGameLaunchOptions(
+      steamID: steamID,
+      appID: appID,
+    );
+    List<String> options =
+        launchOptions.isEmpty ? [] : launchOptions.split(RegExp(r'\s+'));
+    options.remove(option);
+    print(options);
+    await setGameLaunchOptions(
+      steamID: steamID,
+      appID: appID,
+      options: options.join(' '),
+    );
   }
 }
