@@ -18,6 +18,7 @@ class SteamPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final steam = ref.watch(steamModelProvider());
+    final notifier = ref.watch(steamModelProvider().notifier);
 
     return steam.when(
       data: (data) => AppScrollView(
@@ -27,6 +28,16 @@ class SteamPage extends ConsumerWidget {
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: kPagePadding),
+          YaruPopupMenuButton(
+            child: Text(data.activeUser.name),
+            itemBuilder: (context) => data.userConfigs.values.map((id) {
+              var user = SteamUser.fromConfig(id);
+              return PopupMenuItem(
+                child: Text(user.name),
+                onTap: () => notifier.setActiveUser(user.id),
+              );
+            }).toList(),
+          ),
           _SteamSimpleSettings(),
           const SizedBox(height: kPagePadding),
           Text(
@@ -48,7 +59,7 @@ class SteamPage extends ConsumerWidget {
         child: Text(l10n.loadingLabel),
       ),
       error: (error, stackTrace) => Center(
-        child: Text(error.toString()),
+        child: Text('${error.toString()}\n${stackTrace.toString()}'),
       ),
     );
   }
@@ -68,6 +79,38 @@ class _SteamSimpleSettings extends ConsumerWidget {
           value: checked,
           onChanged: (value) async {
             await steam.enableSteamPlay(enable: value);
+          },
+        ),
+        YaruSwitchListTile(
+          title: Text(l10n.steamEnableMangoHUD),
+          value: steam.allGamesHaveOption(
+              steamID: steam.activeUser.id, option: 'mangohud'),
+          onChanged: (value) async {
+            value
+                ? await steam.addAllGameLaunchOption(
+                    steamID: steam.activeUser.id,
+                    option: 'mangohud',
+                  )
+                : await steam.removeAllGameLaunchOption(
+                    steamID: steam.activeUser.id,
+                    option: 'mangohud',
+                  );
+          },
+        ),
+        YaruSwitchListTile(
+          title: Text(l10n.steamEnableGameMode),
+          value: steam.allGamesHaveOption(
+              steamID: steam.activeUser.id, option: 'gamemode'),
+          onChanged: (value) async {
+            value
+                ? await steam.addAllGameLaunchOption(
+                    steamID: steam.activeUser.id,
+                    option: 'gamemode',
+                  )
+                : await steam.removeAllGameLaunchOption(
+                    steamID: steam.activeUser.id,
+                    option: 'gamemode',
+                  );
           },
         ),
       ],

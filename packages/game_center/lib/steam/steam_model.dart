@@ -26,13 +26,36 @@ String steamUserConfig(String installLocation, String userID) {
 typedef Config = ({
   Map<String, dynamic> globalConfig,
   Map<String, Map<String, dynamic>> userConfigs,
+  SteamUser activeUser,
 });
+// typedef SteamUser = ({
+//   String id,
+// });
+
+class SteamUser {
+  SteamUser({
+    required this.id,
+    required this.name,
+  });
+
+  factory SteamUser.fromConfig(Map<String, dynamic> config) {
+    final id = config['UserLocalConfigStore']['friends'].keys.first;
+    return SteamUser(
+      id: id,
+      name: config['UserLocalConfigStore']['friends'][id]['NameHistory']['0'],
+    );
+  }
+
+  late final String id;
+  late final String name;
+}
 
 @riverpod
 class SteamModel extends _$SteamModel {
   late String installLocation;
   late Map<String, dynamic> globalConfig;
   late Map<String, Map<String, dynamic>> userConfigs;
+  late SteamUser activeUser;
 
   @override
   Future<Config> build({String? install}) async {
@@ -76,9 +99,12 @@ class SteamModel extends _$SteamModel {
       });
     }
 
+    activeUser = SteamUser.fromConfig(userConfigs.values.first);
+
     return (
       globalConfig: globalConfig,
       userConfigs: userConfigs,
+      activeUser: activeUser,
     );
   }
 
@@ -96,6 +122,7 @@ class SteamModel extends _$SteamModel {
     state = AsyncData((
       globalConfig: globalConfig,
       userConfigs: userConfigs,
+      activeUser: activeUser,
     ));
   }
 
@@ -105,6 +132,16 @@ class SteamModel extends _$SteamModel {
     state = AsyncData((
       globalConfig: globalConfig,
       userConfigs: userConfigs,
+      activeUser: activeUser,
+    ));
+  }
+
+  Future<void> setActiveUser(String newActiveUserID) async {
+    activeUser = SteamUser.fromConfig(userConfigs[newActiveUserID]!);
+    state = AsyncData((
+      globalConfig: globalConfig,
+      userConfigs: userConfigs,
+      activeUser: activeUser,
     ));
   }
 
@@ -165,24 +202,41 @@ class SteamModel extends _$SteamModel {
   }
 
   /// Get a map of installed Steam apps for the given user.
-  Future<Map<String, dynamic>> listApps({required String steamID}) async {
+  Map<String, dynamic> listApps({required String steamID}) {
     Map<String, dynamic> config = Map.from(userConfigs[steamID]!);
     var apps = config['UserLocalConfigStore']['Software']['Valve']['Steam']
         ['apps'] as Map;
     return apps.cast<String, dynamic>();
   }
 
-  Future<String> getGameLaunchOptions({
+  bool allGamesHaveOption({
     required String steamID,
-    required String appID,
-  }) async {
-    Map<String, dynamic> config = Map.from(userConfigs[steamID]!);
-    String launchOptions = config['UserLocalConfigStore']['Software']['Valve']
-        ['Steam']['apps'][appID]['LaunchOptions'];
-    return launchOptions;
+    required String option,
+  }) {
+    final apps = listApps(steamID: steamID);
+    for (final app in apps.keys) {
+      final launchOptions = getGameLaunchOptions(steamID: steamID, appID: app);
+      List<String> options =
+          launchOptions.isEmpty ? [] : launchOptions.split(RegExp(r'\s+'));
+      if (!options.contains(option)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
-  /// Set the raw launch options for a specific app.
+  String getGameLaunchOptions({
+    required String steamID,
+    required String appID,
+  }) {
+    Map<String, dynamic> config = Map.from(userConfigs[steamID]!);
+    String? launchOptions = config['UserLocalConfigStore']['Software']['Valve']
+        ['Steam']['apps'][appID]['LaunchOptions'];
+    return launchOptions ?? '';
+  }
+
+  /// Set the raw launch options for a specific app.checked
   Future<void> setGameLaunchOptions({
     required String steamID,
     required String appID,
@@ -194,6 +248,34 @@ class SteamModel extends _$SteamModel {
     final file = File(steamUserConfig(installLocation, steamID));
     await file.writeAsString(vdf.encode(config));
     await updateUserConfig(steamID);
+  }
+
+  Future<void> addAllGameLaunchOption({
+    required String steamID,
+    required String option,
+  }) async {
+    final apps = await listApps(steamID: steamID);
+    for (final app in apps.keys) {
+      await addGameLaunchOption(
+        steamID: steamID,
+        appID: app,
+        option: option,
+      );
+    }
+  }
+
+  Future<void> removeAllGameLaunchOption({
+    required String steamID,
+    required String option,
+  }) async {
+    final apps = await listApps(steamID: steamID);
+    for (final app in apps.keys) {
+      await removeGameLaunchOption(
+        steamID: steamID,
+        appID: app,
+        option: option,
+      );
+    }
   }
 
   // Adds an option to a game's launch options. This function does nothing if
@@ -236,7 +318,6 @@ class SteamModel extends _$SteamModel {
     List<String> options =
         launchOptions.isEmpty ? [] : launchOptions.split(RegExp(r'\s+'));
     options.remove(option);
-    print(options);
     await setGameLaunchOptions(
       steamID: steamID,
       appID: appID,

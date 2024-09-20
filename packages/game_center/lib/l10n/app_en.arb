@@ -11,6 +11,8 @@
     "steamGlobalConfigTitle": "Steam Global Config",
     "steamUserConfigTitle": "Steam User Configs",
     "steamEnableProton": "Enable Steam Play (Proton) for all titles",
+    "steamEnableMangoHUD": "Enable MangoHUD for all titles",
+    "steamEnableGameMode": "Enable GameMode for all titles",
 
     "settingsPageLabel": "Settings",
 
