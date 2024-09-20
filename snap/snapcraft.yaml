@@ -69,10 +69,12 @@ parts:
     plugin: nil
     source: .
     override-build: |
-      dart pub global activate melos
-      dart pub global run melos clean
-      dart pub global run melos bootstrap
+      fvm install
+      fvm dart pub global activate melos
+      fvm dart pub global run melos clean
+      fvm dart pub global run melos bootstrap
+      fvm dart pub global run melos exec -c 1 --fail-fast --depends-on=build_runner -- fvm dart run build_runner build --delete-conflicting-outputs
       cd packages/game_center
-      flutter build linux --release -v
+      fvm flutter build linux --release -v
       mkdir -p $CRAFT_PART_INSTALL/bin/
       cp -r build/linux/*/release/bundle/* $CRAFT_PART_INSTALL/bin/
