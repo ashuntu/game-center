@@ -100,16 +100,16 @@ class _SteamSimpleSettings extends ConsumerWidget {
         YaruSwitchListTile(
           title: Text(l10n.steamEnableGameMode),
           value: steam.allGamesHaveOption(
-              steamID: steam.activeUser.id, option: 'gamemode'),
+              steamID: steam.activeUser.id, option: 'gamemoderun'),
           onChanged: (value) async {
             value
                 ? await steam.addAllGameLaunchOption(
                     steamID: steam.activeUser.id,
-                    option: 'gamemode',
+                    option: 'gamemoderun',
                   )
                 : await steam.removeAllGameLaunchOption(
                     steamID: steam.activeUser.id,
-                    option: 'gamemode',
+                    option: 'gamemoderun',
                   );
           },
         ),
