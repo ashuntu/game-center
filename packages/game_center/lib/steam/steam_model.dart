@@ -283,14 +283,23 @@ class SteamModel extends _$SteamModel {
     required String steamID,
     required String option,
   }) async {
+    Map<String, dynamic> config = Map.from(userConfigs[steamID]!);
     final apps = await listApps(steamID: steamID);
     for (final app in apps.keys) {
-      await removeGameLaunchOption(
+      final launchOptions = await getGameLaunchOptions(
         steamID: steamID,
         appID: app,
-        option: option,
       );
+      List<String> options =
+          launchOptions.isEmpty ? [] : launchOptions.split(RegExp(r'\s+'));
+      options.remove(option);
+      config['UserLocalConfigStore']['Software']['Valve']['Steam']['apps'][app]
+          ['LaunchOptions'] = options.join(' ');
     }
+
+    final file = File(steamUserConfig(installLocation, steamID));
+    await file.writeAsString(vdf.encode(config));
+    await updateUserConfig(steamID);
   }
 
   // Adds an option to a game's launch options. This function does nothing if
