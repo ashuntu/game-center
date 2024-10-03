@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:game_center/layout.dart';
 import 'package:game_center/steam/steam_model.dart';
+import 'package:game_center/widgets/expandable_page_section.dart';
 import 'package:vdf/vdf.dart';
 import 'package:yaru/yaru.dart';
 
@@ -40,19 +41,24 @@ class SteamPage extends ConsumerWidget {
           ),
           _SteamSimpleSettings(),
           const SizedBox(height: kPagePadding),
-          Text(
-            l10n.steamGlobalConfigTitle,
-            style: Theme.of(context).textTheme.headlineSmall,
+          ExpandablePageSection(
+            title: l10n.advancedTitle,
+            children: [
+              Text(
+                l10n.steamGlobalConfigTitle,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: kPagePadding),
+              _SteamGlobalConfigText(),
+              const SizedBox(height: kPagePadding),
+              Text(
+                l10n.steamUserConfigTitle,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: kPagePadding),
+              _SteamUserConfigs(),
+            ],
           ),
-          const SizedBox(height: kPagePadding),
-          _SteamGlobalConfigText(),
-          const SizedBox(height: kPagePadding),
-          Text(
-            l10n.steamUserConfigTitle,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: kPagePadding),
-          _SteamUserConfigs(),
         ],
       ),
       loading: () => Center(
@@ -133,7 +139,6 @@ class _SteamGlobalConfigText extends ConsumerWidget {
       data: (data) => TextField(
         controller: controller,
         readOnly: true,
-        minLines: 16,
         maxLines: 16,
       ),
       error: (error, trace) => Center(
@@ -189,7 +194,6 @@ class _SteamUserConfigText extends ConsumerWidget {
       data: (data) => TextField(
         controller: controller,
         readOnly: true,
-        minLines: 16,
         maxLines: 16,
       ),
       error: (error, trace) => Center(

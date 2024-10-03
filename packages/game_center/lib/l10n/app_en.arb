@@ -18,5 +18,6 @@
 
     "systemPageLabel": "System",
 
-    "loadingLabel": "Loading..."
+    "loadingLabel": "Loading...",
+    "advancedTitle": "Advanced"
 }
