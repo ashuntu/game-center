@@ -48,14 +48,14 @@ class SteamPage extends ConsumerWidget {
             children: [
               Text(
                 l10n.steamGlobalConfigTitle,
-                style: Theme.of(context).textTheme.headlineSmall,
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: kPagePadding),
               _SteamGlobalConfigText(),
               const SizedBox(height: kPagePadding),
               Text(
                 l10n.steamUserConfigTitle,
-                style: Theme.of(context).textTheme.headlineSmall,
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: kPagePadding),
               _SteamUserConfigs(),

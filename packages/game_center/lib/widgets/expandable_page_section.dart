@@ -18,12 +18,20 @@ class ExpandablePageSection extends StatelessWidget {
       expandButtonPosition: YaruExpandableButtonPosition.start,
       isExpanded: expanded,
       gapHeight: 24,
-      header: Text(
-        title,
-        style: Theme.of(context)
-            .textTheme
-            .titleMedium
-            ?.copyWith(fontWeight: FontWeight.w500),
+      // Text is surrounded with a Flex to allow toggling anywhere in the row
+      header: Flex(
+        direction: Axis.horizontal,
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
       ),
       child: SizedBox(
         child: Column(
