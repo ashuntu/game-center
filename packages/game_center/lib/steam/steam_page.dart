@@ -31,13 +31,15 @@ class SteamPage extends ConsumerWidget {
           const SizedBox(height: kPagePadding),
           YaruPopupMenuButton(
             child: Text(data.activeUser.name),
-            itemBuilder: (context) => data.userConfigs.values.map((id) {
-              var user = SteamUser.fromConfig(id);
-              return PopupMenuItem(
-                child: Text(user.name),
-                onTap: () => notifier.setActiveUser(user.id),
-              );
-            }).toList(),
+            itemBuilder: (context) => data.userConfigs.values.map(
+              (id) {
+                var user = SteamUser.fromConfig(id);
+                return PopupMenuItem(
+                  child: Text(user.name),
+                  onTap: () => notifier.setActiveUser(user.id),
+                );
+              },
+            ).toList(),
           ),
           _SteamSimpleSettings(),
           const SizedBox(height: kPagePadding),
@@ -140,6 +142,7 @@ class _SteamGlobalConfigText extends ConsumerWidget {
         controller: controller,
         readOnly: true,
         maxLines: 16,
+        style: Theme.of(context).textTheme.bodyLarge?.toMono(),
       ),
       error: (error, trace) => Center(
         child: Text(error.toString()),
@@ -160,8 +163,10 @@ class _SteamUserConfigs extends ConsumerWidget {
     return steam.when(
       data: (data) => Column(
         children: [
-          for (final userID in data.userConfigs.keys)
-            _SteamUserConfigText(userID: userID)
+          for (final userID in data.userConfigs.keys) ...[
+            _SteamUserConfigText(userID: userID),
+            SizedBox(height: kPagePadding),
+          ],
         ],
       ),
       error: (error, trace) => Center(
@@ -195,6 +200,7 @@ class _SteamUserConfigText extends ConsumerWidget {
         controller: controller,
         readOnly: true,
         maxLines: 16,
+        style: Theme.of(context).textTheme.bodyLarge?.toMono(),
       ),
       error: (error, trace) => Center(
         child: Text(error.toString()),

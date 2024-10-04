@@ -36,5 +36,18 @@ dev_dependencies:
   yaru_test: ^0.1.6
 
 flutter:
+  fonts:
+    - family: UbuntuMono
+      fonts:
+        - asset: assets/fonts/UbuntuMono-R.ttf
+          weight: 400
+        - asset: assets/fonts/UbuntuMono-RI.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/UbuntuMono-B.ttf
+          weight: 700
+        - asset: assets/fonts/UbuntuMono-BI.ttf
+          weight: 700
+          style: italic
   uses-material-design: true
   generate: true
