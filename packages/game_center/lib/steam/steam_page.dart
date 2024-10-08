@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:game_center/layout.dart';
+import 'package:game_center/steam/proton_model.dart';
 import 'package:game_center/steam/steam_model.dart';
 import 'package:game_center/widgets/expandable_page_section.dart';
 import 'package:vdf/vdf.dart';
@@ -46,6 +47,13 @@ class SteamPage extends ConsumerWidget {
           ExpandablePageSection(
             title: l10n.advancedTitle,
             children: [
+              Text(
+                l10n.steamProtonTitle,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: kPagePadding),
+              _SteamProtonVersions(),
+              const SizedBox(height: kPagePadding),
               Text(
                 l10n.steamGlobalConfigTitle,
                 style: Theme.of(context).textTheme.titleLarge,
@@ -122,6 +130,34 @@ class _SteamSimpleSettings extends ConsumerWidget {
           },
         ),
       ],
+    );
+  }
+}
+
+class _SteamProtonVersions extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final proton = ref.watch(protonModelProvider());
+
+    return proton.when(
+      data: (data) => Column(
+        children: [
+          if (data.isEmpty)
+            Text(l10n.steamNoProtonVersions)
+          else
+            for (final version in data)
+              YaruTile(
+                title: Text(version),
+              ),
+        ],
+      ),
+      error: (error, trace) => Center(
+        child: Text(error.toString()),
+      ),
+      loading: () => Center(
+        child: Text(l10n.loadingLabel),
+      ),
     );
   }
 }

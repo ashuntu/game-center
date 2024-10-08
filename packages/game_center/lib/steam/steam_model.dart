@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:game_center/steam/steam_data.dart';
 import 'package:game_center/util.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:vdf/vdf.dart';
@@ -8,29 +9,11 @@ import 'package:path/path.dart' as path;
 
 part 'steam_model.g.dart';
 
-const steamDataDir = '.steam/steam';
-
-/// Steam's global settings
-String steamGlobalConfig(String installLocation) {
-  return '$installLocation/$steamDataDir/config/config.vdf';
-}
-
-/// Steam user settings *(not to be confused with the Linux user)*.
-///
-/// Most users of Steam will only have 1 account per Linux user. However, it is
-/// possible to log in to multiple Steam accounts from a single Linux user.
-String steamUserConfig(String installLocation, String userID) {
-  return '$installLocation/$steamDataDir/userdata/$userID/config/localconfig.vdf';
-}
-
 typedef Config = ({
   Map<String, dynamic> globalConfig,
   Map<String, Map<String, dynamic>> userConfigs,
   SteamUser activeUser,
 });
-// typedef SteamUser = ({
-//   String id,
-// });
 
 class SteamUser {
   SteamUser({

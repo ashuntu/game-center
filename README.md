@@ -4,6 +4,9 @@ Flutter app for system and game tweaks and information.
 
 ## Development
 
+*At the moment, this app requires you to have the Steam snap installed and
+opened at least once.*
+
 1. Install [Flutter](https://docs.flutter.dev/get-started/install/linux/desktop)
 and [Melos](https://melos.invertase.dev/~melos-latest/getting-started)
     - This repository uses [FVM](https://fvm.app/) for maintaining Flutter versions

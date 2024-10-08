@@ -13,6 +13,8 @@
     "steamEnableProton": "Enable Steam Play (Proton) for all titles",
     "steamEnableMangoHUD": "Enable MangoHUD for all titles",
     "steamEnableGameMode": "Enable GameMode for all titles",
+    "steamProtonTitle": "Proton Versions",
+    "steamNoProtonVersions": "None",
 
     "settingsPageLabel": "Settings",
 
