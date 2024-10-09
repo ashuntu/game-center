@@ -56,16 +56,11 @@ class SteamPage extends ConsumerWidget {
               _SteamProtonVersions(),
               const SizedBox(height: kPagePadding),
               Text(
-                l10n.steamGlobalConfigTitle,
+                l10n.steamConfigsTitle,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: kPagePadding),
               _SteamGlobalConfigText(),
-              const SizedBox(height: kPagePadding),
-              Text(
-                l10n.steamUserConfigTitle,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
               const SizedBox(height: kPagePadding),
               _SteamUserConfigs(),
             ],
@@ -201,11 +196,18 @@ class _SteamGlobalConfigText extends ConsumerWidget {
     });
 
     return steam.when(
-      data: (data) => TextField(
-        controller: controller,
-        readOnly: true,
-        maxLines: 16,
-        style: Theme.of(context).textTheme.bodyLarge?.toMono(),
+      data: (data) => YaruExpansionPanel(
+        headers: [
+          Text(l10n.steamGlobalConfigTitle),
+        ],
+        children: [
+          TextField(
+            controller: controller,
+            readOnly: true,
+            maxLines: 16,
+            style: Theme.of(context).textTheme.bodyLarge?.toMono(),
+          ),
+        ],
       ),
       error: (error, trace) => Center(
         child: Text(error.toString()),
@@ -224,12 +226,14 @@ class _SteamUserConfigs extends ConsumerWidget {
     final steam = ref.watch(steamModelProvider());
 
     return steam.when(
-      data: (data) => Column(
+      data: (data) => YaruExpansionPanel(
+        headers: [
+          for (final config in data.userConfigs.values)
+            Text(l10n.steamUserConfigTitle(SteamUser.fromConfig(config).name)),
+        ],
         children: [
-          for (final userID in data.userConfigs.keys) ...[
+          for (final userID in data.userConfigs.keys)
             _SteamUserConfigText(userID: userID),
-            const SizedBox(height: kPagePadding),
-          ],
         ],
       ),
       error: (error, trace) => Center(

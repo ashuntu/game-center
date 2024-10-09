@@ -8,8 +8,16 @@
 
     "steamPageLabel": "Steam",
     "steamPageTitle": "Steam Tweaks",
+    "steamConfigsTitle": "Steam Configurations",
     "steamGlobalConfigTitle": "Steam Global Config",
-    "steamUserConfigTitle": "Steam User Configs",
+    "steamUserConfigTitle": "Steam User Config: {name}",
+    "@steamUserConfigTitle": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
     "steamEnableProton": "Enable Steam Play (Proton) for all titles",
     "steamEnableMangoHUD": "Enable MangoHUD for all titles",
     "steamEnableGameMode": "Enable GameMode for all titles",
