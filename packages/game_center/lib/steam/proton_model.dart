@@ -12,6 +12,7 @@ class ProtonModel extends _$ProtonModel {
   late String installLocation;
   late List<String> protonVersions;
 
+  @override
   Future<List<String>> build({String? install}) async {
     // default install location
     if (install == null) {
@@ -27,12 +28,12 @@ class ProtonModel extends _$ProtonModel {
 
     // directory isn't created by Steam by default, so ensure it exists
     final protonDir = Directory(protonDirectory(installLocation));
-    protonDir.create(recursive: true);
+    await protonDir.create(recursive: true);
 
     await updateProtonVersions();
 
     final fileSystem = FileWatcher(protonDirectory(installLocation));
-    fileSystem.events.listen((event) async => await updateProtonVersions());
+    fileSystem.events.listen((event) async => updateProtonVersions());
 
     return protonVersions;
   }

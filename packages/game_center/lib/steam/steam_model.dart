@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:game_center/steam/steam_data.dart';
 import 'package:game_center/util.dart';
+import 'package:path/path.dart' as path;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:vdf/vdf.dart';
 import 'package:watcher/watcher.dart';
-import 'package:path/path.dart' as path;
 
 part 'steam_model.g.dart';
 
@@ -24,8 +24,9 @@ class SteamUser {
   factory SteamUser.fromConfig(Map<String, dynamic> config) {
     final id = config['UserLocalConfigStore']['friends'].keys.first;
     return SteamUser(
-      id: id,
-      name: config['UserLocalConfigStore']['friends'][id]['NameHistory']['0'],
+      id: id as String,
+      name: config['UserLocalConfigStore']['friends'][id]['NameHistory']['0']
+          as String,
     );
   }
 
@@ -68,7 +69,7 @@ class SteamModel extends _$SteamModel {
 
     // user configs
     final users = await listUserDirs();
-    userConfigs = new Map();
+    userConfigs = {};
     for (final steamID in users) {
       final file = File(steamUserConfig(installLocation, steamID));
       userConfigs[steamID] = vdfDecode(await file.readAsString());
@@ -92,9 +93,9 @@ class SteamModel extends _$SteamModel {
   }
 
   Future<List<String>> listUserDirs() async {
-    var userdata =
-        await Directory('$installLocation/$steamDataDir/userdata').list();
-    var directories =
+    final userdata =
+        Directory('$installLocation/$steamDataDir/userdata').list();
+    final directories =
         userdata.where((x) => x is Directory).map((x) => x as Directory);
     return directories.map((dir) => path.basename(dir.path)).toList();
   }
@@ -102,30 +103,36 @@ class SteamModel extends _$SteamModel {
   Future<void> updateGlobalConfig() async {
     final file = File(steamGlobalConfig(installLocation));
     globalConfig = vdfDecode(await file.readAsString());
-    state = AsyncData((
-      globalConfig: globalConfig,
-      userConfigs: userConfigs,
-      activeUser: activeUser,
-    ));
+    state = AsyncData(
+      (
+        globalConfig: globalConfig,
+        userConfigs: userConfigs,
+        activeUser: activeUser,
+      ),
+    );
   }
 
   Future<void> updateUserConfig(String steamID) async {
     final file = File(steamUserConfig(installLocation, steamID));
     userConfigs[steamID] = vdfDecode(await file.readAsString());
-    state = AsyncData((
-      globalConfig: globalConfig,
-      userConfigs: userConfigs,
-      activeUser: activeUser,
-    ));
+    state = AsyncData(
+      (
+        globalConfig: globalConfig,
+        userConfigs: userConfigs,
+        activeUser: activeUser,
+      ),
+    );
   }
 
   Future<void> setActiveUser(String newActiveUserID) async {
     activeUser = SteamUser.fromConfig(userConfigs[newActiveUserID]!);
-    state = AsyncData((
-      globalConfig: globalConfig,
-      userConfigs: userConfigs,
-      activeUser: activeUser,
-    ));
+    state = AsyncData(
+      (
+        globalConfig: globalConfig,
+        userConfigs: userConfigs,
+        activeUser: activeUser,
+      ),
+    );
   }
 
   /// Enable/disable Steam Play (Proton) for all titles globally. This is
@@ -135,7 +142,7 @@ class SteamModel extends _$SteamModel {
     required bool enable,
     String? protonVersion,
   }) async {
-    Map<String, dynamic> config = Map.from(globalConfig);
+    var config = Map<String, dynamic>.from(globalConfig);
     if (enable) {
       config = Map.castFrom(
         safePut(
@@ -146,7 +153,7 @@ class SteamModel extends _$SteamModel {
             'Valve',
             'Steam',
             'CompatToolMapping',
-            '0'
+            '0',
           ],
           {
             'name': protonVersion ?? 'proton_experimental',
@@ -164,7 +171,7 @@ class SteamModel extends _$SteamModel {
             'Software',
             'Valve',
             'Steam',
-            'CompatToolMapping'
+            'CompatToolMapping',
           ],
           {},
         ),
@@ -173,21 +180,22 @@ class SteamModel extends _$SteamModel {
 
     final file = File(steamGlobalConfig(installLocation));
     await file.writeAsString(vdf.encode(config));
+    await updateGlobalConfig();
   }
 
   /// Check if Steam Play is enabled in the global config.
   bool steamPlayEnabled() {
-    Map<String, dynamic> config = Map.from(globalConfig);
+    final config = Map.from(globalConfig);
     final key = config['InstallConfigStore']?['Software']?['Valve']?['Steam']
         ?['CompatToolMapping'];
-    Map<String, dynamic> compat = Map.castFrom(key ?? new Map());
-    return compat.containsKey('0') && compat['0'].isNotEmpty;
+    final compat = Map.castFrom(key != null ? key as Map : {});
+    return compat.containsKey('0') && (compat['0'] as Map).isNotEmpty;
   }
 
   /// Get a map of installed Steam apps for the given user.
   Map<String, dynamic> listApps({required String steamID}) {
-    Map<String, dynamic> config = Map.from(userConfigs[steamID]!);
-    var apps = config['UserLocalConfigStore']['Software']['Valve']['Steam']
+    final config = Map.from(userConfigs[steamID]!);
+    final apps = config['UserLocalConfigStore']['Software']['Valve']['Steam']
         ['apps'] as Map;
     return apps.cast<String, dynamic>();
   }
@@ -199,7 +207,7 @@ class SteamModel extends _$SteamModel {
     final apps = listApps(steamID: steamID);
     for (final app in apps.keys) {
       final launchOptions = getGameLaunchOptions(steamID: steamID, appID: app);
-      List<String> options =
+      final options =
           launchOptions.isEmpty ? [] : launchOptions.split(RegExp(r'\s+'));
       if (!options.contains(option)) {
         return false;
@@ -213,9 +221,9 @@ class SteamModel extends _$SteamModel {
     required String steamID,
     required String appID,
   }) {
-    Map<String, dynamic> config = Map.from(userConfigs[steamID]!);
-    String? launchOptions = config['UserLocalConfigStore']['Software']['Valve']
-        ['Steam']['apps'][appID]['LaunchOptions'];
+    final config = Map.from(userConfigs[steamID]!);
+    final launchOptions = config['UserLocalConfigStore']['Software']['Valve']
+        ['Steam']['apps'][appID]['LaunchOptions'] as String?;
     return launchOptions ?? '';
   }
 
@@ -225,7 +233,7 @@ class SteamModel extends _$SteamModel {
     required String appID,
     required String options,
   }) async {
-    Map<String, dynamic> config = Map.from(userConfigs[steamID]!);
+    final config = Map<String, dynamic>.from(userConfigs[steamID]!);
     config['UserLocalConfigStore']['Software']['Valve']['Steam']['apps'][appID]
         ['LaunchOptions'] = options;
     final file = File(steamUserConfig(installLocation, steamID));
@@ -237,14 +245,14 @@ class SteamModel extends _$SteamModel {
     required String steamID,
     required String option,
   }) async {
-    Map<String, dynamic> config = Map.from(userConfigs[steamID]!);
-    final apps = await listApps(steamID: steamID);
+    final config = Map<String, dynamic>.from(userConfigs[steamID]!);
+    final apps = listApps(steamID: steamID);
     for (final app in apps.keys) {
-      final launchOptions = await getGameLaunchOptions(
+      final launchOptions = getGameLaunchOptions(
         steamID: steamID,
         appID: app,
       );
-      List<String> options =
+      final options =
           launchOptions.isEmpty ? [] : launchOptions.split(RegExp(r'\s+'));
       if (!options.contains(option)) {
         options.insert(0, option);
@@ -266,14 +274,14 @@ class SteamModel extends _$SteamModel {
     required String steamID,
     required String option,
   }) async {
-    Map<String, dynamic> config = Map.from(userConfigs[steamID]!);
-    final apps = await listApps(steamID: steamID);
+    final config = Map<String, dynamic>.from(userConfigs[steamID]!);
+    final apps = listApps(steamID: steamID);
     for (final app in apps.keys) {
-      final launchOptions = await getGameLaunchOptions(
+      final launchOptions = getGameLaunchOptions(
         steamID: steamID,
         appID: app,
       );
-      List<String> options =
+      final options =
           launchOptions.isEmpty ? [] : launchOptions.split(RegExp(r'\s+'));
       options.remove(option);
       config['UserLocalConfigStore']['Software']['Valve']['Steam']['apps'][app]
@@ -292,11 +300,11 @@ class SteamModel extends _$SteamModel {
     required String appID,
     required String option,
   }) async {
-    String launchOptions = await getGameLaunchOptions(
+    final launchOptions = getGameLaunchOptions(
       steamID: steamID,
       appID: appID,
     );
-    List<String> options =
+    final options =
         launchOptions.isEmpty ? [] : launchOptions.split(RegExp(r'\s+'));
     if (!options.contains(option)) {
       options.insert(0, option);
@@ -318,11 +326,11 @@ class SteamModel extends _$SteamModel {
     required String appID,
     required String option,
   }) async {
-    String launchOptions = await getGameLaunchOptions(
+    final launchOptions = getGameLaunchOptions(
       steamID: steamID,
       appID: appID,
     );
-    List<String> options =
+    final options =
         launchOptions.isEmpty ? [] : launchOptions.split(RegExp(r'\s+'));
     options.remove(option);
     await setGameLaunchOptions(

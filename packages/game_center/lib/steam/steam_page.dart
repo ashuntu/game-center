@@ -34,7 +34,7 @@ class SteamPage extends ConsumerWidget {
             child: Text(data.activeUser.name),
             itemBuilder: (context) => data.userConfigs.values.map(
               (id) {
-                var user = SteamUser.fromConfig(id);
+                final user = SteamUser.fromConfig(id);
                 return PopupMenuItem(
                   child: Text(user.name),
                   onTap: () => notifier.setActiveUser(user.id),
@@ -75,7 +75,7 @@ class SteamPage extends ConsumerWidget {
         child: Text(l10n.loadingLabel),
       ),
       error: (error, stackTrace) => Center(
-        child: Text('${error.toString()}\n${stackTrace.toString()}'),
+        child: Text('$error\n$stackTrace'),
       ),
     );
   }
@@ -100,7 +100,9 @@ class _SteamSimpleSettings extends ConsumerWidget {
         YaruSwitchListTile(
           title: Text(l10n.steamEnableMangoHUD),
           value: steam.allGamesHaveOption(
-              steamID: steam.activeUser.id, option: 'mangohud'),
+            steamID: steam.activeUser.id,
+            option: 'mangohud',
+          ),
           onChanged: (value) async {
             value
                 ? await steam.addAllGameLaunchOption(
@@ -116,7 +118,9 @@ class _SteamSimpleSettings extends ConsumerWidget {
         YaruSwitchListTile(
           title: Text(l10n.steamEnableGameMode),
           value: steam.allGamesHaveOption(
-              steamID: steam.activeUser.id, option: 'gamemoderun'),
+            steamID: steam.activeUser.id,
+            option: 'gamemoderun',
+          ),
           onChanged: (value) async {
             value
                 ? await steam.addAllGameLaunchOption(
@@ -167,7 +171,7 @@ class _SteamGlobalConfigText extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final steam = ref.watch(steamModelProvider());
-    final controller = new TextEditingController();
+    final controller = TextEditingController();
 
     steam.whenData((data) async {
       controller.text = vdf.encode(data.globalConfig).replaceAll('\t', '    ');
@@ -201,7 +205,7 @@ class _SteamUserConfigs extends ConsumerWidget {
         children: [
           for (final userID in data.userConfigs.keys) ...[
             _SteamUserConfigText(userID: userID),
-            SizedBox(height: kPagePadding),
+            const SizedBox(height: kPagePadding),
           ],
         ],
       ),
@@ -216,7 +220,7 @@ class _SteamUserConfigs extends ConsumerWidget {
 }
 
 class _SteamUserConfigText extends ConsumerWidget {
-  _SteamUserConfigText({required this.userID});
+  const _SteamUserConfigText({required this.userID});
 
   final String userID;
 
@@ -224,7 +228,7 @@ class _SteamUserConfigText extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final steam = ref.watch(steamModelProvider());
-    final controller = new TextEditingController();
+    final controller = TextEditingController();
 
     steam.whenData((data) async {
       controller.text =

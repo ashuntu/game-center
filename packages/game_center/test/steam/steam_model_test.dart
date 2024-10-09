@@ -26,14 +26,14 @@ void main() {
     final model = container.read(steamModelProvider().notifier);
     await container.read(steamModelProvider().future);
 
-    model.enableSteamPlay(enable: false);
+    await model.enableSteamPlay(enable: false);
     expect(
       model.globalConfig['InstallConfigStore']['Software']['Valve']['Steam']
           ['CompatToolMapping'],
       isEmpty,
     );
 
-    model.enableSteamPlay(enable: true);
+    await model.enableSteamPlay(enable: true);
     expect(
       model.globalConfig['InstallConfigStore']['Software']['Valve']['Steam']
           ['CompatToolMapping'],
@@ -53,7 +53,7 @@ void main() {
 
     final users = await model.listUserDirs();
     for (final user in users) {
-      final apps = await model.listApps(steamID: user);
+      final apps = model.listApps(steamID: user);
       expect(apps, isNotEmpty);
     }
   });
@@ -65,8 +65,8 @@ void main() {
 
     final users = await model.listUserDirs();
     for (final user in users) {
-      final apps = await model.listApps(steamID: user);
-      model.setGameLaunchOptions(
+      final apps = model.listApps(steamID: user);
+      await model.setGameLaunchOptions(
         steamID: user,
         appID: apps.keys.toList()[0],
         options: '%command%',
@@ -86,7 +86,7 @@ void main() {
 
     final users = await model.listUserDirs();
     for (final user in users) {
-      final apps = await model.listApps(steamID: user);
+      final apps = model.listApps(steamID: user);
 
       await model.setGameLaunchOptions(
         steamID: user,
@@ -94,7 +94,7 @@ void main() {
         options: '',
       );
       expect(
-        await model.getGameLaunchOptions(
+        model.getGameLaunchOptions(
           steamID: user,
           appID: apps.keys.first,
         ),
@@ -107,7 +107,7 @@ void main() {
         options: 'foo',
       );
       expect(
-        await model.getGameLaunchOptions(
+        model.getGameLaunchOptions(
           steamID: user,
           appID: apps.keys.first,
         ),
@@ -123,7 +123,7 @@ void main() {
 
     final users = await model.listUserDirs();
     for (final user in users) {
-      final apps = await model.listApps(steamID: user);
+      final apps = model.listApps(steamID: user);
 
       await model.setGameLaunchOptions(
         steamID: user,
@@ -136,7 +136,7 @@ void main() {
         option: 'foo',
       );
       expect(
-        await model.getGameLaunchOptions(
+        model.getGameLaunchOptions(
           steamID: user,
           appID: apps.keys.first,
         ),
@@ -149,7 +149,7 @@ void main() {
         option: 'foo',
       );
       expect(
-        await model.getGameLaunchOptions(
+        model.getGameLaunchOptions(
           steamID: user,
           appID: apps.keys.first,
         ),

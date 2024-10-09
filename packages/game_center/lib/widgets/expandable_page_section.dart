@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:yaru/yaru.dart';
 
 class ExpandablePageSection extends StatelessWidget {
-  ExpandablePageSection({
+  const ExpandablePageSection({
     required this.title,
     required this.children,
     this.expanded = false,
+    super.key,
   });
 
   final String title;

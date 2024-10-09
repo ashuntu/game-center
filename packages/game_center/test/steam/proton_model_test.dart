@@ -9,7 +9,7 @@ void main() {
   test('build', () async {
     final container = createContainer();
     final provider = protonModelProvider();
-    container.read(provider.future);
+    await container.read(provider.future);
     final model = container.read(provider.notifier);
 
     final directory = Directory(model.installLocation);

@@ -44,7 +44,7 @@ extension TextStyleToMono on TextStyle {
 }
 
 class AppScrollView extends StatelessWidget {
-  AppScrollView({required this.children});
+  const AppScrollView({required this.children, super.key});
 
   final List<Widget> children;
 

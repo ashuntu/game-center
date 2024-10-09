@@ -3,12 +3,12 @@ import 'package:game_center/util.dart';
 
 void main() {
   test('Safe put on empty map', () {
-    var emptyMap = Map();
+    var emptyMap = {};
     var inserted = safePut(emptyMap, ['foo'], 'test');
     expect(inserted.containsKey('foo'), isTrue);
     expect(inserted['foo'], equals('test'));
 
-    emptyMap = Map();
+    emptyMap = {};
     inserted = safePut(emptyMap, ['foo', 'bar'], 'test');
     expect(inserted.containsKey('foo'), isTrue);
     expect(inserted['foo'].containsKey('bar'), isTrue);
@@ -16,13 +16,13 @@ void main() {
   });
 
   test('Safe put on non-empty map', () {
-    var map = <String, dynamic>{
+    final map = <String, dynamic>{
       'foo': {
         'bar': 'test',
       },
       'bar': 'test',
     };
-    var inserted = safePut(map, ['foo', 'test'], 'bar');
+    final inserted = safePut(map, ['foo', 'test'], 'bar');
     expect(inserted.containsKey('foo'), isTrue);
     expect(inserted['foo'].containsKey('bar'), isTrue);
     expect(inserted['foo'].containsKey('test'), isTrue);

@@ -17,34 +17,34 @@ final pages = <AppPage>[
           leading: Icon(LauncherPage.icon(selected)),
           title: Text(LauncherPage.label(context)),
         ),
-    pageBuilder: (_) => LauncherPage()
+    pageBuilder: (_) => const LauncherPage()
   ),
   (
     titleBuilder: (context, selected) => YaruMasterTile(
           leading: Icon(SteamPage.icon(selected)),
           title: Text(SteamPage.label(context)),
         ),
-    pageBuilder: (_) => SteamPage(),
+    pageBuilder: (_) => const SteamPage(),
   ),
   (
     titleBuilder: (context, selected) => YaruMasterTile(
           leading: Icon(SystemPage.icon(selected)),
           title: Text(SystemPage.label(context)),
         ),
-    pageBuilder: (_) => SystemPage()
+    pageBuilder: (_) => const SystemPage()
   ),
   (
     titleBuilder: (context, selected) => YaruMasterTile(
           leading: Icon(SettingsPage.icon(selected)),
           title: Text(SettingsPage.label(context)),
         ),
-    pageBuilder: (_) => SettingsPage()
+    pageBuilder: (_) => const SettingsPage()
   ),
   (
     titleBuilder: (context, selected) => YaruMasterTile(
           leading: Icon(AboutPage.icon(selected)),
           title: Text(AboutPage.label(context)),
         ),
-    pageBuilder: (_) => AboutPage()
+    pageBuilder: (_) => const AboutPage()
   ),
 ];
