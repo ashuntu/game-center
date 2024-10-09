@@ -29,5 +29,7 @@
     "systemPageLabel": "System",
 
     "loadingLabel": "Loading...",
-    "advancedTitle": "Advanced"
+    "advancedTitle": "Advanced",
+    "delete": "Delete",
+    "openLocation": "Open Location"
 }

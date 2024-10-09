@@ -155,19 +155,21 @@ class _SteamProtonVersions extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
+                      icon: const Icon(Icons.folder),
+                      tooltip: l10n.openLocation,
                       onPressed: () {
                         FilePicker.platform.pickFiles(
                           initialDirectory: version.path,
                           dialogTitle: version.name,
                         );
                       },
-                      icon: const Icon(Icons.folder),
                     ),
                     IconButton(
+                      icon: const Icon(Icons.delete),
+                      tooltip: l10n.delete,
                       onPressed: () {
                         notifier.deleteProtonVersion(version.path);
                       },
-                      icon: const Icon(Icons.delete),
                     ),
                   ],
                 ),
