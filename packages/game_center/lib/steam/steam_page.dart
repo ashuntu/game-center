@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -143,6 +144,7 @@ class _SteamProtonVersions extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final proton = ref.watch(protonModelProvider());
+    final notifier = ref.watch(protonModelProvider().notifier);
 
     return proton.when(
       data: (data) => Column(
@@ -152,7 +154,28 @@ class _SteamProtonVersions extends ConsumerWidget {
           else
             for (final version in data)
               YaruTile(
-                title: Text(version),
+                title: Text(version.name),
+                trailing: Flex(
+                  direction: Axis.horizontal,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        FilePicker.platform.pickFiles(
+                          initialDirectory: version.path,
+                          dialogTitle: version.name,
+                        );
+                      },
+                      icon: const Icon(Icons.folder),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        notifier.deleteProtonVersion(version.path);
+                      },
+                      icon: const Icon(Icons.delete),
+                    ),
+                  ],
+                ),
               ),
         ],
       ),

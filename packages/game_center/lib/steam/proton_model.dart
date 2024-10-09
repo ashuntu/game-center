@@ -7,13 +7,27 @@ import 'package:watcher/watcher.dart';
 
 part 'proton_model.g.dart';
 
+class ProtonVersion {
+  ProtonVersion({
+    required this.name,
+    required this.path,
+  });
+
+  factory ProtonVersion.fromPath(String path) {
+    return ProtonVersion(name: basename(path), path: path);
+  }
+
+  late final String name;
+  late final String path;
+}
+
 @riverpod
 class ProtonModel extends _$ProtonModel {
   late String installLocation;
-  late List<String> protonVersions;
+  late List<ProtonVersion> protonVersions;
 
   @override
-  Future<List<String>> build({String? install}) async {
+  Future<List<ProtonVersion>> build({String? install}) async {
     // default install location
     if (install == null) {
       final home = Platform.environment['SNAP_REAL_HOME'] ??
@@ -41,8 +55,17 @@ class ProtonModel extends _$ProtonModel {
   Future<void> updateProtonVersions() async {
     final protonDir = Directory(protonDirectory(installLocation));
     final fileStream = await protonDir.list().toList();
-    protonVersions = fileStream.map((x) => basename(x.path)).toList();
+    protonVersions =
+        fileStream.map((x) => ProtonVersion.fromPath(x.absolute.path)).toList();
 
     state = AsyncData(protonVersions);
+  }
+
+  Future<void> deleteProtonVersion(String version) async {
+    final protonDir = Directory(protonDirectory(installLocation));
+    final folder = Directory(join(protonDir.path, version));
+    await folder.delete(recursive: true);
+
+    await updateProtonVersions();
   }
 }
